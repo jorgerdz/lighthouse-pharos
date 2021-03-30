@@ -1,0 +1,19 @@
+{
+  "name": "lighthouse-pharos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "convert-array-to-csv": "^2.0.0",
+    "lighthouse": "7",
+    "matrix-transpose": "^1.0.2",
+    "median": "^0.0.2",
+    "puppeteer": "*",
+    "yargs": "^16.2.0"
+  }
+}
