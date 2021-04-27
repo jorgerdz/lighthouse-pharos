@@ -75,7 +75,8 @@ async function runTest(uri, options) {
     const lighthouseFlags = {
         port: (new URL(browser.wsEndpoint())).port,
         output: 'json',
-        logLevel: 'info'
+        logLevel: 'info',
+        maxWaitForLoad: 60 * 1000
     }
 
     // Lighthouse will open the URL.
@@ -94,18 +95,20 @@ async function runTest(uri, options) {
         tests.push(uri);
     }
 
-    let result = tests.reduce( function (p, nextUri) {
+    let result = tests.reduce( function (p, nextUri, i) {
         return p.then(function(results) {
+            let testNumber = i+1;
+            console.log(`Running test #${testNumber}`);
             return runTest(nextUri, argv).then(function(result) {
                 results.push(result);
+                fs.writeFile(`${getOutputFilename()}_${testNumber}.json`, JSON.stringify(result), () => console.log)
                 return results;
             });
-        })
+        });
       }, Promise.resolve([]));
 
       result.then(function(results) {
           exportResults(results)
-          fs.writeFile(`${getOutputFilename()}.json`, JSON.stringify(results), () => console.log)
       })
 })();
 
