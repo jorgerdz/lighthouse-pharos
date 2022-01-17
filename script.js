@@ -157,10 +157,13 @@ function resultsToCsv(results) {
         let entry = []
         let metrics = result.audits.metrics.details.items[0];
         let score = result.categories.performance.score;
+        let lastKey = '';
 
         headersRow.push(i+1);
         headers = Object.keys(metrics).filter(function(metric) {
-            return !(metric.includes('observed') || metric.includes('layout'))
+            let lastValue = metrics[lastKey];
+            lastKey = metric;
+            return !(metric.includes('observed') || metric.includes('layout') || !metrics[metric] || metrics[metric] === lastValue)
         })
         headers.forEach(function(key) {
             entry.push(metrics[key]);
