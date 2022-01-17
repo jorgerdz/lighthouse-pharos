@@ -5,7 +5,8 @@ const {
 } = require('url');
 const fs = require('fs');
 const { transpose } = require('matrix-transpose');
-const median = require('median')
+const median = require('median');
+const percentile = require('percentile');
 const { convertArrayToCSV } = require('convert-array-to-csv');
 const argv = require('yargs/yargs')(process.argv.slice(2))
     .demandOption(['uri'])
@@ -154,8 +155,10 @@ function resultsToCsv(results) {
     let transposed = transpose(summary)
     transposed.forEach(function(row) {
         row.push(median(row))
+        row.push(percentile(75,row));
     })
     headersRow.push('Median');
+    headersRow.push('P75');
     transposed.unshift(headersRow)
     summary = transpose(transposed);
     summary.unshift(headers)
