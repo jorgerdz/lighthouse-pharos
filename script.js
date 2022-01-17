@@ -5,7 +5,8 @@ const {
 } = require('url');
 const fs = require('fs');
 const { transpose } = require('matrix-transpose');
-const median = require('median')
+const median = require('median');
+const percentile = require('percentile');
 const { convertArrayToCSV } = require('convert-array-to-csv');
 const argv = require('yargs/yargs')(process.argv.slice(2))
     .demandOption(['uri'])
@@ -28,6 +29,12 @@ function getPuppeteerConfig (options) {
         puppeteerConfig.defaultViewport = {
             width: 1920,
             height: 1080
+        }
+    }
+    if (options.customViewportW && options.customViewportH) {
+        puppeteerConfig.defaultViewport = {
+            width: options.customViewportW,
+            height: options.customViewportH
         }
     }
     return puppeteerConfig;
@@ -63,6 +70,19 @@ function getLighthouseConfig(options) {
               },
             emulatedUserAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4420.0 Safari/537.36 Chrome-Lighthouse'
         })
+    }
+
+    if (options.customViewportW && options.customViewportH) {
+        Object.assign(lighthouseConfig.settings, {
+            formFactor: 'mobile',
+            screenEmulation: {
+                mobile: true,
+                width: options.customViewportW,
+                height: options.customViewportH,
+                deviceScaleFactor: 2,
+                disabled: false,
+            },
+        });
     }
 
     return lighthouseConfig
@@ -137,10 +157,13 @@ function resultsToCsv(results) {
         let entry = []
         let metrics = result.audits.metrics.details.items[0];
         let score = result.categories.performance.score;
+        let lastKey = '';
 
         headersRow.push(i+1);
         headers = Object.keys(metrics).filter(function(metric) {
-            return !(metric.includes('observed') || metric.includes('layout'))
+            let lastValue = metrics[lastKey];
+            lastKey = metric;
+            return !(metric.includes('observed') || metric.includes('layout') || !metrics[metric] || metrics[metric] === lastValue)
         })
         headers.forEach(function(key) {
             entry.push(metrics[key]);
@@ -154,8 +177,10 @@ function resultsToCsv(results) {
     let transposed = transpose(summary)
     transposed.forEach(function(row) {
         row.push(median(row))
+        row.push(percentile(75,row));
     })
     headersRow.push('Median');
+    headersRow.push('P75');
     transposed.unshift(headersRow)
     summary = transpose(transposed);
     summary.unshift(headers)
