@@ -31,6 +31,12 @@ function getPuppeteerConfig (options) {
             height: 1080
         }
     }
+    if (options.customViewportW && options.customViewportH) {
+        puppeteerConfig.defaultViewport = {
+            width: options.customViewportW,
+            height: options.customViewportH
+        }
+    }
     return puppeteerConfig;
 }
 
@@ -64,6 +70,19 @@ function getLighthouseConfig(options) {
               },
             emulatedUserAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4420.0 Safari/537.36 Chrome-Lighthouse'
         })
+    }
+
+    if (options.customViewportW && options.customViewportH) {
+        Object.assign(lighthouseConfig.settings, {
+            formFactor: 'mobile',
+            screenEmulation: {
+                mobile: true,
+                width: options.customViewportW,
+                height: options.customViewportH,
+                deviceScaleFactor: 2,
+                disabled: false,
+            },
+        });
     }
 
     return lighthouseConfig
