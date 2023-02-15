@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "convert-array-to-csv": "^2.0.0",
-    "lighthouse": "7",
+    "lighthouse": "10.0.1",
     "matrix-transpose": "^1.0.2",
     "median": "^0.0.2",
     "puppeteer": "*",
